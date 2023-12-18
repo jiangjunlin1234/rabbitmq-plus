@@ -1,0 +1,31 @@
+server:
+  port: 8080
+#生产者配置
+spring:
+  rabbitmq:
+    addresses: 106.55.51.114:5672
+    username: rabbitmq@2023
+    password: rabbitmq@2023
+    #开启发送确认
+    #    publisher-confirms: true          #springboot2.1.0
+    publisher-confirm-type: correlated #springboot2.3.4
+    publisher-returns: true
+      #开启发送失败退回
+    #不指定默认为 "/"
+#    virtual-host: rabbitmqdemo
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: org.code.system
+# knife4j的增强配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
