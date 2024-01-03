@@ -155,17 +155,6 @@ async function createQrCode () {
             </n-form-item>
           </n-form>
           <template #action>
-            <div class="qr-login-button">
-              <n-button
-                text
-                @click="toggleUseQrCode"
-              >
-                <n-icon
-                  :size="30"
-                  :component="QrCodeOutline"
-                />
-              </n-button>
-            </div>
             <n-space
               justify="center"
               align="center"
