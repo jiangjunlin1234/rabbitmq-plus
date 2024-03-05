@@ -7,7 +7,8 @@
 		<module>rabbitmq-plus-agent</module>
 		<module>rabbitmq-plus-main</module>
 		<module>rabbitmq-plus-framework</module>
-	</modules>
+        <module>rabbitmq-plus-login</module>
+    </modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>

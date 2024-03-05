@@ -28,11 +28,4 @@ public class AgentController {
         return "aaa";
     }
 
-    @Operation(summary = "添加用户",
-              description = "根据姓名添加用户并返回")
-    @GetMapping("test")
-    public String test1(User user) {
-        return "aaa";
-    }
-
 }

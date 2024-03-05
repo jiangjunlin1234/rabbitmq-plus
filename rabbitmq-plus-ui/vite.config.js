@@ -4,16 +4,27 @@ import {resolve} from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    vue()
-  ],
-  resolve: {
-    alias: [
-      {
-        find: '@',
-        replacement: resolve('./src')
-      }
+    plugins: [
+        vue()
     ],
-    extensions: ['.js', '.json', '.vue'] // 使用路径别名时想要省略的后缀名，可以自己 增减
-  }
+    resolve: {
+        alias: [
+            {
+                find: '@',
+                replacement: resolve('./src')
+            }
+        ],
+        extensions: ['.js', '.json', '.vue'] // 使用路径别名时想要省略的后缀名，可以自己 增减
+    },
+    server: {
+        open: false,
+        port: 3000,
+        proxy: {
+            '/api': {
+                target: 'http://127.0.0.1:8080/',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, '')
+            }
+        }
+    }
 })

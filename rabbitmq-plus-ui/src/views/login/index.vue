@@ -4,35 +4,36 @@ import {
   NLayout, NButton, NIcon, useMessage
 } from 'naive-ui'
 import {
-  LockOpenOutline, Person, LogoGithub, LogoWechat, LogoApple, QrCodeOutline, ArrowBackCircle, CheckmarkCircle
+  LockOpenOutline,
+  Person,
+  Server,
+  StopCircleOutline
 } from '@vicons/ionicons5'
-import { useRouter } from 'vue-router'
+import {useRouter} from 'vue-router'
 import security from '@/global/security'
-import { onMounted, reactive, ref } from 'vue'
+import {onMounted, reactive, ref} from 'vue'
 import QRCode from 'qrcode'
+import api from "@/api/api.js";
 
 const router = useRouter()
 const message = useMessage()
 
 const loginForm = reactive({
+  address: '127.0.0.1',
+  port: '15672',
   username: 'admin',
   password: 'admin'
 })
 
 const loginFormRef = ref(null)
 
-function login (e) {
+function login(e) {
   e.preventDefault()
-  loginFormRef.value?.validate((errors) => {
+  loginFormRef.value?.validate(async (errors) => {
     if (!errors) {
-      security.signIn(loginForm.password, {
-        refreshToken         : 'jwt refresh', // 写入刷新token
-        refreshTokenExpiredAt: new Date().getTime() + 3600 * 24 * 7, // 刷新token过期时间
-        username             : loginForm.username,
-        nickname             : '千阳',
-        avatar               : 'https://oss.injs.jsxww.cn/net-disk-smh/09505891f7a34e82b64a5922ecf5a7e0.gif?x-oss-process=image/resize,w_100/quality,q_95'
-      })
-      router.push('/')
+      const res = await api.login(loginForm);
+      console.log(res)
+      await router.push('/')
     } else {
       console.log(errors)
       errors.forEach(e => {
@@ -43,16 +44,28 @@ function login (e) {
 }
 
 const rules = {
+  address: [
+    {
+      required: true,
+      message: '请输入服务地址'
+    }
+  ],
+  port: [
+    {
+      required: true,
+      message: '请输入web服务端口'
+    }
+  ],
   username: [
     {
       required: true,
-      message : '请输入用户'
+      message: '请输入用户名'
     }
   ],
   password: [
     {
       required: true,
-      message : '请输入密码'
+      message: '请输入密码'
     }
   ]
 }
@@ -60,24 +73,25 @@ const rules = {
 
 const loadedVideoBg = ref(false)
 
-function onVideoBgLoad () {
+function onVideoBgLoad() {
   console.log('load video bg success')
   loadedVideoBg.value = true
 }
 
-function onVideoBgError () {
+function onVideoBgError() {
   console.log('load video bg failed')
 }
 
 const qrcode = ref('')
 const isQrcodeScan = ref(true)
-async function createQrCode () {
+
+async function createQrCode() {
   const generateQR = async text => {
     try {
       qrcode.value = await QRCode.toDataURL(text, {
-        width : 360,
+        width: 360,
         margin: 1,
-        color : {
+        color: {
           dark: '#7BB650FF'
         }
       })
@@ -92,92 +106,123 @@ async function createQrCode () {
 <template>
   <div>
     <img
-      v-if="!loadedVideoBg"
-      class="image-bg"
-      src="/src/assets/bg.png"
+        v-if="!loadedVideoBg"
+        class="image-bg"
+        src="/src/assets/bg.png"
     >
     <n-layout
-      class="hb-admin-login"
-      content-style="width:100%;"
+        class="hb-admin-login"
+        content-style="width:100%;"
     >
       <n-space
-        vertical
-        justify="center"
-        align="center"
-        style="height: 100%;width: 100%;"
+          vertical
+          justify="center"
+          align="center"
+          style="height: 100%;width: 100%;"
       >
         <n-card
-          hoverable
-          class="hb-card animate__animated animate__fadeIn animate__slow"
-          content-style="height: 180px"
+            hoverable
+            class="hb-card animate__animated animate__fadeIn animate__slow"
+            content-style="height: 180px"
         >
           <n-space
-            justify="center"
-            style="margin-bottom: 20px;"
+              justify="center"
+              style="margin-bottom: 20px;"
           >
             <img
-              class="hb-logo"
-              src="/src/assets/logo.png"
+                class="hb-logo"
+                src="/src/assets/rabbitmqlogo.svg"
             >
           </n-space>
           <n-form
-            ref="loginFormRef"
-            class="hb-form animate__animated animate__fadeIn"
-            :model="loginForm"
-            :rules="rules"
+              ref="loginFormRef"
+              class="hb-form animate__animated animate__fadeIn"
+              :model="loginForm"
+              :rules="rules"
           >
             <n-form-item
-              label="账号"
-              path="username"
+                label="服务地址"
+                path="address"
             >
               <n-input
-                v-model:value="loginForm.username"
-                size="large"
+                  v-model:value="loginForm.address"
+                  size="large"
               >
                 <template #prefix>
-                  <n-icon :component="Person" />
+                  <n-icon :component="Server"/>
+                </template>
+              </n-input>
+            </n-form-item>
+
+
+            <n-form-item
+                label="端口"
+                path="port"
+            >
+              <n-input
+                  v-model:value="loginForm.port"
+                  size="large"
+              >
+                <template #prefix>
+                  <n-icon :component="StopCircleOutline"/>
+                </template>
+              </n-input>
+            </n-form-item>
+
+
+            <n-form-item
+                label="用户名"
+                path="username"
+            >
+              <n-input
+                  v-model:value="loginForm.username"
+                  size="large"
+              >
+                <template #prefix>
+                  <n-icon :component="Person"/>
                 </template>
               </n-input>
             </n-form-item>
             <n-form-item
-              label="密码"
-              path="password"
+                label="密码"
+                path="password"
             >
               <n-input
-                v-model:value="loginForm.password"
-                type="password"
-                size="large"
+                  v-model:value="loginForm.password"
+                  type="password"
+                  size="large"
               >
                 <template #prefix>
-                  <n-icon :component="LockOpenOutline" />
+                  <n-icon :component="LockOpenOutline"/>
                 </template>
               </n-input>
             </n-form-item>
           </n-form>
           <template #action>
             <n-space
-              justify="center"
-              align="center"
-              style="margin-bottom: 20px;"
+                justify="center"
+                align="center"
+                style="margin-bottom: 20px;"
             >
             </n-space>
             <n-button
-              size="large"
-              type="success"
-              block
-              @click="login"
+                bac
+                size="large"
+                type="success"
+                block
+                @click="login"
             >
               登录
             </n-button>
             <n-space
-              justify="center"
-              style="margin-top: 30px"
+                justify="center"
+                style="margin-top: 30px"
             >
               <n-button
-                type="info"
-                tag="a"
-                text
-                @click="()=>{router.push('/recover')}"
+                  type="info"
+                  tag="a"
+                  text
+                  @click="()=>{router.push('/recover')}"
               >
                 忘记密码？
               </n-button>
@@ -220,7 +265,7 @@ async function createQrCode () {
 }
 
 .hb-logo {
-  width: 100px;
+  width: 250px;
   height: 100px;
 }
 
@@ -237,14 +282,14 @@ async function createQrCode () {
   border-radius: 5px;
 }
 
-.scan-mark{
+.scan-mark {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate3d(-50%,-50%,0);
+  transform: translate3d(-50%, -50%, 0);
 }
 
-.qr-code-scan{
+.qr-code-scan {
   opacity: 0.5;
 }
 
